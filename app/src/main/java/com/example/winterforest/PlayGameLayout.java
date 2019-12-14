@@ -26,6 +26,8 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     private Rect background;
     private SurfaceHolder surfaceHolder;
 
+    float[] lineColumns;
+    float[] lineRows;
     float[] characterColumns;
     float[] characterRows;
     int screenWidth;
@@ -46,6 +48,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
     private ImageView tree;
     private ViewGroup rootLayout;
+    private Context context;
 
     public PlayGameLayout(Context context) {
         super(context);
@@ -53,6 +56,8 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
     public PlayGameLayout(Context context, Display display) {
         super(context);
+        this.context = context;
+
         surfaceHolder = getHolder();
 
         // make bitmap and set its coordinates
@@ -69,6 +74,13 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         screenWidth = size.x;
         screenHeight = size.y;
 
+        // get line path coordinates for screen
+        lineColumns = new float[] {4 / 40f * screenWidth, 10 / 40f * screenWidth,
+                30 / 40f * screenWidth, 36 / 40f * screenWidth};
+        lineRows = new float[] {6 / 40f * screenHeight, 10 / 40f * screenHeight,
+                14 / 40f * screenHeight, 18 / 40f * screenHeight, 22 / 40f * screenHeight,
+                26 / 40f * screenHeight, 30 / 40f * screenHeight, 34 / 40f * screenHeight};
+
         // get character path coordinates for screen
         characterColumns = new float[] {7 / 40f * screenWidth, 33 / 40f * screenWidth};
         characterRows = new float[] {8 / 40f * screenHeight, 16 / 40f * screenHeight,
@@ -76,7 +88,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
         // set default coordinates for character bitmap
         character_x = characterColumns[0];
-        character_y = 0;
+        character_y = screenHeight;
 
         tree_x[0] = characterColumns[0];
         tree_y[0] = characterRows[1];
@@ -87,9 +99,10 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         tree_x[2] = characterColumns[1];
         tree_y[2] = characterRows[0];
 
-        stone_x[0] = characterColumns[0];
+        stone_x[0] = lineColumns[1];
         stone_y[0] = characterRows[0];
     }
+
 
     @Override
     public void run() {
@@ -122,7 +135,10 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         canDraw = false;
         while (true) {
             try {
-                thread.join();
+                if (thread != null)
+                    {
+                    thread.join();
+                }
                 break;
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -140,26 +156,26 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     private void createBackgroundPath() {
         // create shape of backgroundPath
         backgroundPath = new Path();
-        backgroundPath.moveTo(4 / 40f * screenWidth, 0);
-        backgroundPath.lineTo(4 / 40f * screenWidth, 10 / 40f * screenHeight);
-        backgroundPath.lineTo(30 / 40f * screenWidth, 10 / 40f * screenHeight);
-        backgroundPath.lineTo(30 / 40f * screenWidth, 14 / 40f * screenHeight);
-        backgroundPath.lineTo(4 / 40f * screenWidth, 14 / 40f * screenHeight);
-        backgroundPath.lineTo(4 / 40f * screenWidth, 26 / 40f * screenHeight);
-        backgroundPath.lineTo(30 / 40f * screenWidth, 26 / 40f * screenHeight);
-        backgroundPath.lineTo(30 / 40f * screenWidth, 30 / 40f * screenHeight);
-        backgroundPath.lineTo(4 / 40f * screenWidth, 30 / 40f * screenHeight);
-        backgroundPath.lineTo(4 / 40f * screenWidth, screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, 34 / 40f * screenHeight);
-        backgroundPath.lineTo(36 / 40f * screenWidth, 34 / 40f * screenHeight);
-        backgroundPath.lineTo(36 / 40f * screenWidth, 22 / 40f * screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, 22 / 40f * screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, 18 / 40f * screenHeight);
-        backgroundPath.lineTo(36 / 40f * screenWidth, 18 / 40f * screenHeight);
-        backgroundPath.lineTo(36 / 40f * screenWidth, 6 / 40f * screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, 6 / 40f * screenHeight);
-        backgroundPath.lineTo(10 / 40f * screenWidth, 0);
+        backgroundPath.moveTo(lineColumns[0], 0);
+        backgroundPath.lineTo(lineColumns[0], lineRows[1]);
+        backgroundPath.lineTo(lineColumns[2], lineRows[1]);
+        backgroundPath.lineTo(lineColumns[2], lineRows[2]);
+        backgroundPath.lineTo(lineColumns[0], lineRows[2]);
+        backgroundPath.lineTo(lineColumns[0], lineRows[5]);
+        backgroundPath.lineTo(lineColumns[2], lineRows[5]);
+        backgroundPath.lineTo(lineColumns[2], lineRows[6]);
+        backgroundPath.lineTo(lineColumns[0], lineRows[6]);
+        backgroundPath.lineTo(lineColumns[0], screenHeight);
+        backgroundPath.lineTo(lineColumns[1], screenHeight);
+        backgroundPath.lineTo(lineColumns[1], lineRows[7]);
+        backgroundPath.lineTo(lineColumns[3], lineRows[7]);
+        backgroundPath.lineTo(lineColumns[3], lineRows[4]);
+        backgroundPath.lineTo(lineColumns[1], lineRows[4]);
+        backgroundPath.lineTo(lineColumns[1], lineRows[3]);
+        backgroundPath.lineTo(lineColumns[3], lineRows[3]);
+        backgroundPath.lineTo(lineColumns[3], lineRows[0]);
+        backgroundPath.lineTo(lineColumns[1], lineRows[0]);
+        backgroundPath.lineTo(lineColumns[1], 0);
         backgroundPath.close();
 
 
@@ -195,6 +211,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         // if reach top of screen, return to bottom
         if (character_y <= speed){
             character_y = screenHeight;
+            updatePoints(10);
         }
 
         // move up
@@ -250,5 +267,16 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         else {
             character_y -= speed;
         }
+    }
+    private void updatePoints(final int num) {
+        ((PlayGame)context).runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                ((PlayGame) context).addPoints(num);
+
+            }
+        });
     }
 }

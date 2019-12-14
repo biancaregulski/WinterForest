@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity"
+            android:theme="@style/Theme.AppCompat.Translucent"></activity>
         <activity
             android:name=".HowToPlayActivity"
             android:label="@string/title_activity_how_to_play"
@@ -23,7 +24,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlayGame" />
-        <service android:name="MusicService"
+
+        <service
+            android:name=".MusicService"
             android:enabled="true" />
     </application>
 

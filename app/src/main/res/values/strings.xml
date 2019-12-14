@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Winter Forest</string>
-    <string name="title">Winter\nForest</string>
     <string name="howToPlay">How To Play</string>
     <string name="playGame">Play Game</string>
     <string name="settings">Settings</string>

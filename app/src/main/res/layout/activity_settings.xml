@@ -1,41 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingsActivity"
-    android:padding="30dp"
-    android:background="@color/gray">
+    android:padding="30dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/border_blue_background"
-        tools:layout_editor_absoluteX="30dp"
-        tools:layout_editor_absoluteY="30dp">
+        android:background="@drawable/border_blue_background">
 
         <Switch
             android:id="@+id/switch_music"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:checked="true"
             android:text="Music   "
-            android:textSize="20sp"
-            android:checked="true" />
+            android:textColor="@color/black"
+            android:textSize="20sp" />
 
         <Switch
             android:id="@+id/switch_sounds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/switch_music"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:checked="true"
             android:text="Sounds   "
-            android:textSize="20sp"
-            android:checked="true" />
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/button_submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/border_white_background"
+            android:text="Save"
+            android:textColor="@color/black" />
+
     </RelativeLayout>
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

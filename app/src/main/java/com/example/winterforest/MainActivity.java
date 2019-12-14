@@ -38,8 +38,11 @@ public class MainActivity extends Activity {
                 break;
             case R.id.button_settings:
                 intent = new Intent(this, SettingsActivity.class);
+                intent.putExtra("gray_background", true);
                 startActivity(intent);
+                overridePendingTransition( R.anim.slide_up, R.anim.slide_down );
                 break;
+            // add high scores
         }
     }
 
