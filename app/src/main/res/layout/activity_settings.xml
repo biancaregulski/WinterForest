@@ -42,7 +42,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="0dp"
-            android:background="@drawable/border_white_background"
+            android:background="@drawable/border_purple_background"
             android:text="Save"
             android:textColor="@color/black" />
 

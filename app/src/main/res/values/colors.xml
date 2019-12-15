@@ -3,7 +3,7 @@
     <color name="colorPrimary">@color/blue</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">@color/white</color>
-    <color name="purple">#CDCBEF</color>
+    <color name="purple">#B1BFF0</color>
     <color name="blue">#b0e1fb</color>
     <color name="gray">#c3c3c3</color>
     <color name="black">#000000</color>

@@ -73,6 +73,7 @@ public class PlayGame extends Activity {
         gameWidgets.addView(scoreText);
         mFrameLayout.addView(mPlayGameLayout);
         mFrameLayout.addView(gameWidgets);
+
         setContentView(mFrameLayout);
     }
 

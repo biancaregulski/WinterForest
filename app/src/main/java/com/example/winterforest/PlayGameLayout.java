@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -61,7 +60,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         surfaceHolder = getHolder();
 
         // make bitmap and set its coordinates
-        character_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake);
+        character_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_character);
         for (int i = 0; i < 3; i++) {
             tree_bm[i] = BitmapFactory.decodeResource(getResources(), R.drawable.tree);
         }
