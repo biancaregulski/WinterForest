@@ -114,7 +114,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
             canvas = surfaceHolder.lockCanvas();
             createBackgroundPath();
-            int speed =  10;
+            int speed =  5;
             characterMotion(speed);
 
             canvas.drawBitmap(character_bm, character_x - (character_bm.getWidth() / 2),
@@ -205,8 +205,6 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     }
 
     private void characterMotion(int speed) {
-        //Log.v("DEBUG", "x = " + character_x + "and y = " + character_y);
-
         // if reach top of screen, return to bottom
         if (character_y <= speed){
             character_y = screenHeight;

@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/border_blue_background">
+        android:background="@drawable/border_light_blue_background">
 
         <Switch
             android:id="@+id/switch_music"
@@ -42,7 +42,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="0dp"
-            android:background="@drawable/border_purple_background"
+            android:background="@drawable/border_light_blue_background"
             android:text="Save"
             android:textColor="@color/black" />
 

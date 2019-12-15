@@ -22,7 +22,7 @@
     </style>
 
     <style name="SwitchCompatTheme" >
-        <item name="colorControlActivated">@color/blue</item>
+        <item name="colorControlActivated">@color/light_blue</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

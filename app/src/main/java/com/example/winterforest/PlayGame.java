@@ -14,7 +14,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class PlayGame extends Activity {
 
@@ -63,7 +62,7 @@ public class PlayGame extends Activity {
         scoreText.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
         scoreText.setLayoutParams(textParams);
         scoreText.setPadding(30, 10, 30, 10);
-        scoreText.setBackgroundResource(R.drawable.border_blue_background);
+        scoreText.setBackgroundResource(R.drawable.border_light_blue_background);
         scoreText.setText("Score: " + String.format("%05d", score));
         scoreText.setTypeface(null, Typeface.BOLD);
         scoreText.setTextSize(20);
@@ -84,7 +83,7 @@ public class PlayGame extends Activity {
 
         final Dialog dialog = new Dialog(PlayGame.this);
         // Include dialog.xml file
-        dialog.setContentView(R.layout.dialog_pause_game);
+        dialog.setContentView(R.layout.dialog_pause);
         dialog.setCancelable(false);
         dialog.show();
 

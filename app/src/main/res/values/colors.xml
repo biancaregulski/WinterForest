@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/blue</color>
+    <color name="colorPrimary">@color/light_blue</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">@color/white</color>
     <color name="purple">#B1BFF0</color>
-    <color name="blue">#b0e1fb</color>
-    <color name="gray">#c3c3c3</color>
+    <color name="light_blue">#B0E1FB</color>
+    <color name="medium_blue">#00A2E8</color>
+    <color name="gray">#C3C3C3</color>
     <color name="black">#000000</color>
+
     <color name="white">#FFFFFF</color>
 </resources>

@@ -27,22 +27,11 @@ public class SnowLayout extends SurfaceView implements Runnable {
     private Rect background;
     private SurfaceHolder surfaceHolder;
 
-    float[] Columns;
-    float[] Rows;
     int screenWidth;
     int screenHeight;
 
-    Bitmap[] snowflake1_bm = new Bitmap[49];
-    float[] snowflake1_x = new float[49];
-    float[] snowflake1_y = new float[49];
-
-    Bitmap[] snowflake2_bm = new Bitmap[49];
-    float[] snowflake2_x = new float[49];
-    float[] snowflake2_y = new float[49];
-
-    Bitmap[] snowflake3_bm = new Bitmap[49];
-    float[] snowflake3_x = new float[49];
-    float[] snowflake3_y = new float[49];
+    Snowflake [] snowflakes = new Snowflake[60];
+    Bitmap [] bitmap = new Bitmap[3];
 
     private ImageView tree;
     private ViewGroup rootLayout;
@@ -67,29 +56,36 @@ public class SnowLayout extends SurfaceView implements Runnable {
 
         rand = new Random();
 
-        createSnowflakes(snowflake1_bm, snowflake1_x, snowflake1_y, R.drawable.snowflake1);
-        createSnowflakes(snowflake2_bm, snowflake2_x, snowflake2_y, R.drawable.snowflake2);
-        createSnowflakes(snowflake3_bm, snowflake3_x, snowflake3_y, R.drawable.snowflake3);
+        bitmap[0] = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake1);
+        bitmap[1] = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake2);
+        bitmap[2] = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake3);
+        createSnowflakes();
     }
 
-    private void createSnowflakes(Bitmap [] bitmap, float [] x, float [] y, int id) {
+    private void createSnowflakes() {
         int previousRandom = 0;
-        for (int i = 0; i < 49; i++) {
-            bitmap[i] = BitmapFactory.decodeResource(getResources(), id);
-            x[i] = (i + 1) / 20f * screenWidth;
 
-            // prevent using the same y-value for 2 snowflakes in a row
-            int random;
-            while ((random = rand.nextInt(49)) != previousRandom) {
-                y[i] = random / 50f * screenHeight;     // random y-value on screen
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 20; j++) {
+                snowflakes[j + (20 * i)] = new Snowflake();
+                snowflakes[j + (20 * i)].bitmapIndex = i;            // assign one of three bitmap indexes
+                snowflakes[j + (20 * i)].x = (j + 1) / 21f * screenWidth;
+
+                // prevent using the same y-value for 2 snowflakes in a row
+                int random;
+                while ((random = rand.nextInt(19)) != previousRandom) {
+                    snowflakes[j + (20 * i)].y = random / 20f * screenHeight;   // random y-value on screen
+                }
+                previousRandom = random;
             }
-            previousRandom = random;
         }
+
     }
 
     @Override
     public void run() {
-        createPaints();
+        createPaint();
 
         while (canDraw) {
             if (!surfaceHolder.getSurface().isValid()) {
@@ -99,13 +95,9 @@ public class SnowLayout extends SurfaceView implements Runnable {
             canvas.drawRect(background, basePaint);
             characterMotion();
 
-            for (int i = 0; i < 49; i++) {
-                canvas.drawBitmap(snowflake1_bm[i], snowflake1_x[i] - (snowflake1_bm[i].getWidth() / 2),
-                        snowflake1_y[i] - (snowflake1_bm[i].getHeight() / 2), null);
-                canvas.drawBitmap(snowflake2_bm[i], snowflake2_x[i] - (snowflake2_bm[i].getWidth() / 2),
-                        snowflake2_y[i] - (snowflake2_bm[i].getHeight() / 2), null);
-                canvas.drawBitmap(snowflake3_bm[i], snowflake3_x[i] - (snowflake3_bm[i].getWidth() / 2),
-                        snowflake3_y[i] - (snowflake3_bm[i].getHeight() / 2), null);
+            for (int i = 0; i < 60; i++) {
+                canvas.drawBitmap(bitmap[snowflakes[i].bitmapIndex], snowflakes[i].x - (bitmap[snowflakes[i].bitmapIndex].getWidth() / 2),
+                        snowflakes[i].y - (bitmap[snowflakes[i].bitmapIndex].getHeight() / 2), null);
             }
 
             surfaceHolder.unlockCanvasAndPost(canvas);
@@ -132,7 +124,7 @@ public class SnowLayout extends SurfaceView implements Runnable {
         thread = new Thread(this);
         thread.start();
     }
-    private void createPaints() {
+    private void createPaint() {
         // fill in background with purple
         basePaint = new Paint();
         background = new Rect(0, 0, screenWidth, screenHeight);
@@ -140,21 +132,16 @@ public class SnowLayout extends SurfaceView implements Runnable {
         basePaint.setColor(getResources().getColor(R.color.purple));
     }
 
-    private void characterMotion() {
-        snowflakeMotion(2, snowflake1_y);
-        snowflakeMotion(3, snowflake2_y);
-        snowflakeMotion(4, snowflake3_y);
-    }
-    private void snowflakeMotion(int speed, float [] y) {
-        // if reach top of screen, return to bottom
-        for (int i = 0; i < 49; i++) {
-            // snowflakes fall until they get to the bottom of the screen
-            if (y[i] <= screenHeight - speed) {
-                y[i] += speed;
+private void characterMotion() {
+        int speed;
+        for (int i = 0; i < 60; i++) {
+            speed = snowflakes[i].bitmapIndex + 2;
+            if (snowflakes[i].y <= screenHeight - speed) {
+                snowflakes[i].y += speed;
             }
-            // then they return to the top
+            // if reach bottom of screen, return to top
             else {
-                y[i] = 0;
+                snowflakes[i].y = 0;
             }
         }
     }

@@ -50,7 +50,7 @@
         android:id="@+id/button_how"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/border_blue_background"
+        android:background="@drawable/border_light_blue_background"
         android:onClick="onClick"
         android:text="@string/howToPlay"
         android:textSize="20sp"

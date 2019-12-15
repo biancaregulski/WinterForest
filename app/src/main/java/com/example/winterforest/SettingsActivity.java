@@ -1,6 +1,7 @@
 package com.example.winterforest;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,7 +19,7 @@ import android.widget.Toast;
 public class SettingsActivity extends AppCompatActivity {
 
     private Switch musicSwitch, soundsSwitch;
-    private Button submitButton;
+    private Button submitButton, yesButton, noButton;
     private String statusMusicSwitch, statusSoundsSwitch;
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String SWITCH_MUSIC = "musicSwitch";
@@ -55,7 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
         // if changes have been made by user, ask if they should be saved
         loadData();
         if (musicOnOff != musicSwitch.isChecked() || soundsOnOff != soundsSwitch.isChecked()) {
-            new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+            /*new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                     .setTitle("Save settings?")
                     .setMessage("Otherwise the changes will be lost.")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -71,7 +72,32 @@ public class SettingsActivity extends AppCompatActivity {
                             finish();
                         }
                     })
-                    .show();
+                    .show();*/
+            final Dialog dialog = new Dialog(SettingsActivity.this);
+            // Include dialog.xml file
+            dialog.setContentView(R.layout.dialog_save);
+            dialog.setCancelable(false);
+            dialog.show();
+
+            yesButton = dialog.findViewById(R.id.button_yes);
+            noButton = dialog.findViewById(R.id.button_no);
+            yesButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    saveData();
+                    finish();
+                }
+            });
+
+            // restart activity
+            noButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    finish();
+                }
+            });
         } else {
             finish();
         }

@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabTextColor="@color/black"
-            android:background="@drawable/border_blue_background"/>
+            android:background="@drawable/border_light_blue_background"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
@@ -26,6 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@drawable/border_blue_background" />
+        android:background="@drawable/border_light_blue_background" />
 
 </android.support.design.widget.CoordinatorLayout>
