@@ -9,8 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity"
-            android:theme="@style/Theme.AppCompat.Translucent"></activity>
+        <activity android:name=".GameOverActivity"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.AppCompat.Translucent" />
         <activity
             android:name=".HowToPlayActivity"
             android:label="@string/title_activity_how_to_play"

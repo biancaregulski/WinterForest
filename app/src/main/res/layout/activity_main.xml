@@ -11,7 +11,7 @@
         android:id="@+id/treeImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/mountainsDrawing"
+        android:contentDescription="Tree drawing"
         android:src="@drawable/tree"
         app:layout_constraintEnd_toStartOf="@+id/text_title"
         app:layout_constraintHorizontal_bias="0.5"
@@ -35,7 +35,6 @@
 
     <Button
         android:id="@+id/button_play"
-        style="@style/Widget.AppCompat.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/border_gray_background"

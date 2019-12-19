@@ -27,10 +27,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     private boolean musicOnOff, soundsOnOff;
 
+    public static MusicService mBoundService;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        Intent playIntent = new Intent(this, MusicService.class);
+        startService(playIntent);
+        bindService(playIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+
+        //bindService(new Intent(this, MusicService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
 
         // show gray background if coming from MainActivity
         if (getIntent().getExtras().getBoolean("gray_background")) {
@@ -52,27 +59,39 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mBoundService != null) {
+            mBoundService.resumeMusic();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mBoundService != null) {
+            mBoundService.pauseMusic();
+        }
+    }
+
+    protected ServiceConnection mServiceConnection = new ServiceConnection(){
+
+        public void onServiceConnected(ComponentName name, IBinder
+                binder) {
+            mBoundService = ((MusicService.ServiceBinder)binder).getService();
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            mBoundService = null;
+        }
+    };
+
+    @Override
     public void onBackPressed() {
         // if changes have been made by user, ask if they should be saved
         loadData();
         if (musicOnOff != musicSwitch.isChecked() || soundsOnOff != soundsSwitch.isChecked()) {
-            /*new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
-                    .setTitle("Save settings?")
-                    .setMessage("Otherwise the changes will be lost.")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            saveData();
-                            finish();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })
-                    .show();*/
             final Dialog dialog = new Dialog(SettingsActivity.this);
             // Include dialog.xml file
             dialog.setContentView(R.layout.dialog_save);
@@ -121,7 +140,14 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void updateViews() {
+        // TODO: make music adapt to switch setting
         musicSwitch.setChecked(musicOnOff);
+        if (musicOnOff) {
+            mBoundService.resumeMusic();
+        }
+        else {
+            mBoundService.pauseMusic();
+        }
         soundsSwitch.setChecked(soundsOnOff);
     }
 }

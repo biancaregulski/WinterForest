@@ -18,7 +18,10 @@ import java.util.Set;
 
 public class MainActivity extends Activity {
     private boolean mIsBound = false;
-    private MusicService mServ;
+
+    public static MusicService mBoundService;
+    private Intent playIntent;
+
     private SnowLayout mSnowLayout;
     private PlayGameLayout mPlayGameLayout;
     private FrameLayout mFrameLayout;
@@ -26,7 +29,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
+        doBindService();
 
         Display display = getWindowManager().getDefaultDisplay();
         mFrameLayout = new FrameLayout(this);
@@ -37,12 +40,9 @@ public class MainActivity extends Activity {
         View v = inflater.inflate(R.layout.activity_main, null, false);
         mFrameLayout.addView(v);
 
-        Intent music = new Intent();
-        music.setClass(this,MusicService.class);
-        startService(music);
-
         setContentView(mFrameLayout);
     }
+
 
     public void onClick(View view) {
         Intent intent;
@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 overridePendingTransition( R.anim.slide_up, R.anim.slide_down );
                 break;
-            // add high scores
+            // TODO: add high scores
         }
     }
 
@@ -69,41 +69,43 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mSnowLayout.pause();
-
-        if (mServ != null) {
-            mServ.pauseMusic();
+        if (mBoundService != null) {
+            mBoundService.pauseMusic();
         }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSnowLayout.resume();
-        if (mServ != null) {
-            mServ.resumeMusic();
+        if (mBoundService != null) {
+            mBoundService.resumeMusic();
         }
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    public void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
     }
 
-    private ServiceConnection mServiceConnection = new ServiceConnection(){
+    protected ServiceConnection mServiceConnection = new ServiceConnection(){
 
         public void onServiceConnected(ComponentName name, IBinder
                 binder) {
-            mServ = ((MusicService.ServiceBinder)binder).getService();
+            mBoundService = ((MusicService.ServiceBinder)binder).getService();
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            mServ = null;
+            mBoundService = null;
         }
     };
 
     void doBindService(){
-        bindService(new Intent(this,MusicService.class),
-                mServiceConnection, Context.BIND_AUTO_CREATE);
+        playIntent = new Intent(this, MusicService.class);
+        startService(playIntent);
+        bindService(playIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         mIsBound = true;
     }
 

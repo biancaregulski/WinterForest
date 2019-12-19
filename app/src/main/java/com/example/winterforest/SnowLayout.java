@@ -62,6 +62,7 @@ public class SnowLayout extends SurfaceView implements Runnable {
         createSnowflakes();
     }
 
+    // TODO: make snowflakes start at top
     private void createSnowflakes() {
         int previousRandom = 0;
 
@@ -93,7 +94,7 @@ public class SnowLayout extends SurfaceView implements Runnable {
             }
             canvas = surfaceHolder.lockCanvas();
             canvas.drawRect(background, basePaint);
-            characterMotion();
+            avatarMotion();
 
             for (int i = 0; i < 60; i++) {
                 canvas.drawBitmap(bitmap[snowflakes[i].bitmapIndex], snowflakes[i].x - (bitmap[snowflakes[i].bitmapIndex].getWidth() / 2),
@@ -132,7 +133,7 @@ public class SnowLayout extends SurfaceView implements Runnable {
         basePaint.setColor(getResources().getColor(R.color.purple));
     }
 
-private void characterMotion() {
+private void avatarMotion() {
         int speed;
         for (int i = 0; i < 60; i++) {
             speed = snowflakes[i].bitmapIndex + 2;

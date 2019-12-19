@@ -2,10 +2,14 @@ package com.example.winterforest;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -24,11 +28,15 @@ public class PlayGame extends Activity {
     int score;
     static boolean settingsOpened = false;
 
+    public static MusicService mBoundService;
+
     public Button resumeButton, restartButton, settingsButton, quitButton;
 
+    // TODO: add multiple lives
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Display display = getWindowManager().getDefaultDisplay();
         mFrameLayout = new FrameLayout(this);
         mPlayGameLayout = new PlayGameLayout(this, display);
@@ -52,6 +60,22 @@ public class PlayGame extends Activity {
             }
         });
 
+        Button testButton = new Button(this);
+        RelativeLayout.LayoutParams testButtonParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        testButtonParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
+        testButtonParams.setMargins(0,30,220,0);
+        testButton.setLayoutParams(testButtonParams);
+        testButton.setText("Game Over");
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PlayGame.this, GameOverActivity.class);
+                intent.putExtra("score", 0);
+                startActivity(intent);
+            }
+        });
+
         // display score box
         scoreText = new TextView(this);
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -69,6 +93,7 @@ public class PlayGame extends Activity {
         scoreText.setTextColor(Color.BLACK);
 
         gameWidgets.addView(pauseButton);
+        gameWidgets.addView(testButton);
         gameWidgets.addView(scoreText);
         mFrameLayout.addView(mPlayGameLayout);
         mFrameLayout.addView(gameWidgets);
@@ -79,6 +104,10 @@ public class PlayGame extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        pauseLayout();
+    }
+
+    private void pauseLayout() {
         mPlayGameLayout.pause();
 
         final Dialog dialog = new Dialog(PlayGame.this);
