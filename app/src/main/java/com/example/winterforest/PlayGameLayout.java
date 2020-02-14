@@ -52,23 +52,14 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     Bitmap current_bm;
     int strokeWidth;
 
-    // TODO: make multiple snowflakes at different times
-    Avatar avatar = new Avatar();
-    boolean avatar_transparent = false;
-
+    ArrayList<Avatar> avatars = new ArrayList<>();
     ArrayList<Obstacle> obstacles = new ArrayList<>();
     Bitmap tree_bm;
-    Bitmap stone_bm;
-    Bitmap avatar_bm;
 
     private Context context;
 
-    int speed =  7;
     int score;
     int lives;
-
-    private static final int FADE_MILLISECONDS = 3000; // 3 second fade effect
-    private static final int FADE_STEP = 120;          // 120ms refresh
 
     long timeLastDied = -1;     // initial state
 
@@ -86,9 +77,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         timeLastDied = 0;
 
         // make bitmap and set its coordinates
-        avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
         tree_bm = BitmapFactory.decodeResource(getResources(), R.drawable.tree);
-        stone_bm = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
 
         // get custom dimensions of screen
         Point size = new Point();
@@ -109,8 +98,12 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
                 24 / 40f * screenHeight, 32 / 40f * screenHeight, 5 / 40f * screenHeight};
 
         // set default coordinates for avatar bitmap
-        avatar.x = avatarColumns[0];
-        avatar.y = screenHeight;
+        avatars.add(new Avatar());
+        avatars.get(0).x = avatarColumns[0];
+        avatars.get(0).y = screenHeight;
+        avatars.get(0).transparent = false;
+        avatars.get(0).speed = 6;
+        avatars.get(0).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
 
         obstacles.add(new Obstacle());
         obstacles.get(0).x = avatarColumns[0] - (tree_bm.getWidth() / 2);
@@ -147,10 +140,12 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
             canvas = surfaceHolder.lockCanvas();
             createBackgroundPath();
-            avatarMotion(speed);
-            canvas.drawBitmap(avatar_bm, avatar.x - (avatar_bm.getWidth() / 2),
-            avatar.y - (avatar_bm.getHeight() / 2), null);
-            for (int i = 0; i < 4; i++) {
+            avatarMotion();
+            for (int i = 0; i < avatars.size(); i++) {
+                canvas.drawBitmap(avatars.get(i).bitmap, avatars.get(i).x - (avatars.get(i).bitmap.getWidth() / 2),
+                        avatars.get(i).y - (avatars.get(i).bitmap.getHeight() / 2), null);
+            }
+            for (int i = 0; i < obstacles.size(); i++) {
                 canvas.drawBitmap(tree_bm, obstacles.get(i).x, obstacles.get(i).y, null);
             }
 
@@ -236,9 +231,6 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         if (obstacles.get(index).type == "tree") {
             current_bm = tree_bm;
         }
-        else {
-            current_bm = stone_bm;
-        }
         float xStart = obstacles.get(index).x;
         float yStart = obstacles.get(index).y;
         float xEnd = xStart + current_bm.getWidth();
@@ -317,101 +309,112 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         strokePaint.setStrokeWidth(strokeWidth);
     }
 
-    private void avatarMotion(int speed) {
+    private void avatarMotion() {
+        // begin animating second avatar when first avatar gets halfway up path
+        if (avatars.size() == 1 && avatars.get(0).y <= screenHeight / 2) {
+            avatars.add(new Avatar());
+            avatars.get(1).x = avatarColumns[0];
+            avatars.get(1).y = screenHeight;
+            avatars.get(1).speed = 6;
+            avatars.get(1).transparent = false;
+            avatars.get(1).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
+        }
+        for (int i = 0; i < avatars.size(); i++) {
+            long currentTime = SystemClock.elapsedRealtime();
+            // check if 3000ms or more have passed since last life lost
+            if (currentTime == -1 || currentTime - timeLastDied > 3000) {
+                if (avatars.get(i).transparent == true) {
+                    // change avatar back to normal
+                    avatars.get(i).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
+                    avatars.get(i).transparent = false;
+                }
 
-        long currentTime = SystemClock.elapsedRealtime();
-        // check if 3000ms or more have passed since last life lost
-        if (currentTime == -1 || currentTime - timeLastDied > 3000) {
-
-            if (avatar_transparent == true) {
-                // change avatar back to blue
-                avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
-                avatar_transparent = true;
-            }
-
-            // check if snowflake hits any obstacle
-            for (int i = 0; i < 4; i++) {
-                if (isCollisionDetected(avatar_bm, (int) avatar.x, (int) avatar.y,
-                        tree_bm, (int) obstacles.get(i).x, (int) obstacles.get(i).y)) {
-                    // lost a life
-                    lives -= 1;
-                    timeLastDied = currentTime;
-                    if (lives == 0) {
-                        // GAME OVER
-                        Intent intent = new Intent().setClass(getContext(), GameOverActivity.class);
-                        intent.putExtra("score", score);
-                        (getContext()).startActivity(intent);
-                        break;
-                    }
-                    else {
-                        ((PlayGame) context).playSound("lose");
-                        // temporarily change transparency of avatar
-                        avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar_transparent);
-                        avatar_transparent = true;
+                // check if snowflake hits any obstacle
+                for (int j = 0; j < obstacles.size(); j++) {
+                    if (isCollisionDetected((int) avatars.get(i).x, (int) avatars.get(i).y,
+                            (int) obstacles.get(j).x, (int) obstacles.get(j).y)) {
+                        // lose a life
+                        lives -= 1;
+                        timeLastDied = currentTime;
+                        if (lives == 0) {
+                            // GAME OVER
+                            Intent intent = new Intent().setClass(getContext(), GameOverActivity.class);
+                            intent.putExtra("score", score);
+                            (getContext()).startActivity(intent);
+                            break;
+                        }
+                        else {
+                            ((PlayGame) context).playSound("lose");
+                            // temporarily change transparency of avatar
+                            avatars.get(i).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar_transparent);
+                            avatars.get(i).transparent = true;
+                        }
                     }
                 }
             }
+
+            // if reach top of screen, return to bottom
+            if (avatars.get(i).y <= avatars.get(i).speed){
+                avatars.get(i).y = screenHeight;
+                avatars.get(i).speed += 1;
+                updatePoints(10);
+            }
+
+            // move up
+            else if (avatars.get(i).x <= avatarColumns[0] &&  (avatars.get(i).y <= avatarRows[0])) {
+                avatars.get(i).x = avatarColumns[0];
+                avatars.get(i).y -= avatars.get(i).speed;
+            }
+
+            // move left
+            else if (avatars.get(i).x <= avatarColumns[1] && avatars.get(i).y <= avatarRows[0]) {
+                avatars.get(i).x -= avatars.get(i).speed;
+                avatars.get(i).y = avatarRows[0];
+            }
+
+            // move up
+            else if (avatars.get(i).x >= avatarColumns[1] &&
+                    (avatars.get(i).y <= avatarRows[1])) {
+                avatars.get(i).x = avatarColumns[1];
+                avatars.get(i).y -= avatars.get(i).speed;
+            }
+
+            // move right
+            else if (avatars.get(i).x >= avatarColumns[0] && avatars.get(i).y <= avatarRows[1]) {
+                avatars.get(i).x += avatars.get(i).speed;
+                avatars.get(i).y = avatarRows[1];
+            }
+
+            // move up
+            else if (avatars.get(i).x <= avatarColumns[0] && avatars.get(i).y <= avatarRows[2]) {
+                avatars.get(i).x = avatarColumns[0];
+                avatars.get(i).y -= avatars.get(i).speed;
+            }
+
+            // move left
+            else if (avatars.get(i).x <= avatarColumns[1] && avatars.get(i).y <= avatarRows[2]) {
+                avatars.get(i).x -= avatars.get(i).speed;
+                avatars.get(i).y = avatarRows[2];
+            }
+
+            // move up
+            else if (avatars.get(i).x >= avatarColumns[1] && avatars.get(i).y <= avatarRows[3]) {
+                avatars.get(i).x = avatarColumns[1];
+                avatars.get(i).y -= avatars.get(i).speed;
+            }
+
+            //  move right
+            else if (avatars.get(i).x >= avatarColumns[0] && avatars.get(i).y <= avatarRows[3]) {
+                avatars.get(i).x += avatars.get(i).speed;
+                avatars.get(i).y = avatarRows[3];
+            }
+
+            // move up
+            else {
+                avatars.get(i).y -= avatars.get(i).speed;
+            }
         }
 
-        // if reach top of screen, return to bottom
-        if (avatar.y <= speed){
-            avatar.y = screenHeight;
-            updatePoints(10);
-        }
-
-        // move up
-        else if (avatar.x <= avatarColumns[0] &&  (avatar.y <= avatarRows[0])) {
-            avatar.x = avatarColumns[0];
-            avatar.y -= speed;
-        }
-
-        // move left
-        else if (avatar.x <= avatarColumns[1] && avatar.y <= avatarRows[0]) {
-            avatar.x -= speed;
-            avatar.y = avatarRows[0];
-        }
-
-        // move up
-        else if (avatar.x >= avatarColumns[1] &&
-                (avatar.y <= avatarRows[1])) {
-            avatar.x = avatarColumns[1];
-            avatar.y -= speed;
-        }
-
-        // move right
-        else if (avatar.x >= avatarColumns[0] && avatar.y <= avatarRows[1]) {
-            avatar.x += speed;
-            avatar.y = avatarRows[1];
-        }
-
-        // move up
-        else if (avatar.x <= avatarColumns[0] && avatar.y <= avatarRows[2]) {
-            avatar.x = avatarColumns[0];
-            avatar.y -= speed;
-        }
-
-        // move left
-        else if (avatar.x <= avatarColumns[1] && avatar.y <= avatarRows[2]) {
-            avatar.x -= speed;
-            avatar.y = avatarRows[2];
-        }
-
-        // move up
-        else if (avatar.x >= avatarColumns[1] && avatar.y <= avatarRows[3]) {
-            avatar.x = avatarColumns[1];
-            avatar.y -= speed;
-        }
-
-        //  move right
-        else if (avatar.x >= avatarColumns[0] && avatar.y <= avatarRows[3]) {
-            avatar.x += speed;
-            avatar.y = avatarRows[3];
-        }
-
-        // move up
-        else {
-            avatar.y -= speed;
-        }
     }
     private void updatePoints(final int num) {
         ((PlayGame)context).runOnUiThread(new Runnable() {
@@ -426,12 +429,8 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     }
 
      // check if two bitmaps are colliding
-    public boolean isCollisionDetected(Bitmap avatarBitmap, int avatarX, int avatarY,
-                                       Bitmap obstacleBitmap, int obstacleX, int obstacleY) {
-        if (obstacleBitmap == null || avatarBitmap == null) {
-            throw new IllegalArgumentException("Error: null bitmap");
-        }
-
+    public boolean isCollisionDetected(int avatarX, int avatarY, int obstacleX, int obstacleY) {
+        // TODO: improve collision detection
         if (obstacleX <= avatarX && (obstacleX + tree_bm.getWidth()) >= avatarX
             && obstacleY <= avatarY && (obstacleY + tree_bm.getHeight()) >= avatarY) {
             return true;

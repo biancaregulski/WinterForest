@@ -102,15 +102,22 @@ public class PlayGame extends AppCompatActivity {
 
     private void pauseLayout() {
         mPlayGameLayout.pause();
-
-        increasePointsSound.release();
-        increasePointsSound = null;
-        increaseLevelSound.release();
-        increaseLevelSound = null;
-        failSound.release();
-        failSound = null;
-        loseLifeSound.release();
-        loseLifeSound = null;
+        if (increasePointsSound != null) {
+            increasePointsSound.release();
+            increasePointsSound = null;
+        }
+        if (increaseLevelSound != null) {
+            increaseLevelSound.release();
+            increaseLevelSound = null;
+        }
+        if (failSound != null) {
+            failSound.release();
+            failSound = null;
+        }
+        if (loseLifeSound != null) {
+            loseLifeSound.release();
+            loseLifeSound = null;
+        }
 
         final Dialog dialog = new Dialog(PlayGame.this);
         dialog.setContentView(R.layout.dialog_pause);
