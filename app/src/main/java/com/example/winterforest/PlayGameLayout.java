@@ -1,16 +1,21 @@
 package com.example.winterforest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.media.MediaPlayer;
+import android.os.SystemClock;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -19,6 +24,10 @@ import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class PlayGameLayout extends SurfaceView implements Runnable {
 
@@ -43,18 +52,26 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     Bitmap current_bm;
     int strokeWidth;
 
+    // TODO: make multiple snowflakes at different times
     Avatar avatar = new Avatar();
+    boolean avatar_transparent = false;
 
-    Obstacle [] obstacles = new Obstacle[30];
+    ArrayList<Obstacle> obstacles = new ArrayList<>();
     Bitmap tree_bm;
     Bitmap stone_bm;
     Bitmap avatar_bm;
 
-    private ImageView tree;
-    private ViewGroup rootLayout;
     private Context context;
 
     int speed =  7;
+    int score;
+    int lives;
+
+    private static final int FADE_MILLISECONDS = 3000; // 3 second fade effect
+    private static final int FADE_STEP = 120;          // 120ms refresh
+
+    long timeLastDied = -1;     // initial state
+
 
     public PlayGameLayout(Context context) {
         super(context);
@@ -65,6 +82,8 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         this.context = context;
 
         surfaceHolder = getHolder();
+        lives = 2;
+        timeLastDied = 0;
 
         // make bitmap and set its coordinates
         avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
@@ -87,31 +106,31 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         // get avatar path coordinates for screen
         avatarColumns = new float[] {7 / 40f * screenWidth, 33 / 40f * screenWidth};
         avatarRows = new float[] {8 / 40f * screenHeight, 16 / 40f * screenHeight,
-                24 / 40f * screenHeight, 32 / 40f * screenHeight};
+                24 / 40f * screenHeight, 32 / 40f * screenHeight, 5 / 40f * screenHeight};
 
         // set default coordinates for avatar bitmap
         avatar.x = avatarColumns[0];
         avatar.y = screenHeight;
 
-        obstacles[0] = new Obstacle();
-        obstacles[0].x = avatarColumns[0] - (tree_bm.getWidth() / 2);
-        obstacles[0].y = avatarRows[1] - (tree_bm.getHeight() / 2);
-        obstacles[0].type = "tree";
+        obstacles.add(new Obstacle());
+        obstacles.get(0).x = avatarColumns[0] - (tree_bm.getWidth() / 2);
+        obstacles.get(0).y = avatarRows[1] - (tree_bm.getHeight() / 2);
+        obstacles.get(0).type = "tree";
 
-        obstacles[1] = new Obstacle();
-        obstacles[1].x = avatarColumns[1] - (tree_bm.getWidth() / 2);
-        obstacles[1].y = avatarRows[2] - (tree_bm.getHeight() / 2);
-        obstacles[1].type = "tree";
+        obstacles.add(new Obstacle());
+        obstacles.get(1).x = avatarColumns[1] - (tree_bm.getWidth() / 2);
+        obstacles.get(1).y = avatarRows[2] - (tree_bm.getHeight() / 2);
+        obstacles.get(1).type = "tree";
 
-        obstacles[2] = new Obstacle();
-        obstacles[2].x = avatarColumns[1] - (tree_bm.getWidth() / 2);
-        obstacles[2].y = avatarRows[0] - (tree_bm.getHeight() / 2);
-        obstacles[2].type = "tree";
+        obstacles.add(new Obstacle());
+        obstacles.get(2).x = avatarColumns[1] - (tree_bm.getWidth() / 2);
+        obstacles.get(2).y = avatarRows[0] - (tree_bm.getHeight() / 2);
+        obstacles.get(2).type = "tree";
 
-        obstacles[3] = new Obstacle();
-        obstacles[3].x = lineColumns[1] - (stone_bm.getWidth() / 2);
-        obstacles[3].y = avatarRows[0] - (stone_bm.getHeight() / 2);
-        obstacles[3].type = "stone";
+        obstacles.add(new Obstacle());
+        obstacles.get(3).x = avatarColumns[0] - (tree_bm.getWidth() / 2);
+        obstacles.get(3).y = avatarRows[4] - (tree_bm.getHeight() / 2);
+        obstacles.get(3).type = "tree";
 
         strokeWidth = screenWidth / 40;         // get width of path stroke
     }
@@ -129,13 +148,12 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
             canvas = surfaceHolder.lockCanvas();
             createBackgroundPath();
             avatarMotion(speed);
-
             canvas.drawBitmap(avatar_bm, avatar.x - (avatar_bm.getWidth() / 2),
-                    avatar.y - (avatar_bm.getHeight() / 2), null);
-            for (int i = 0; i < 3; i++) {
-                canvas.drawBitmap(tree_bm, obstacles[i].x, obstacles[i].y, null);
+            avatar.y - (avatar_bm.getHeight() / 2), null);
+            for (int i = 0; i < 4; i++) {
+                canvas.drawBitmap(tree_bm, obstacles.get(i).x, obstacles.get(i).y, null);
             }
-            canvas.drawBitmap(stone_bm, obstacles[3].x, obstacles[3].y, null);
+
 
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
@@ -167,29 +185,30 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                for (int i = 0; i < 30; i++) {
-                    if (obstacles[i] != null) {
+                for (int i = 0; i < obstacles.size(); i++) {
+                    if (obstacles.get(i) != null) {
                         // check if obstacle is being clicked
                         if (clickOnBitmap(i, event)) {
                             dragBitmap = true;
+                            // make current obstacle the last in the array so that it shows up above other obstacles
+                            currentObstacle = obstacles.size() - 1;
+                            Collections.swap(obstacles, currentObstacle, i);
 
                             // set initial values in case illegal drop takes place eventually
-                            xInitial = obstacles[i].x;
-                            yInitial = obstacles[i].y;
+                            xInitial = obstacles.get(currentObstacle).x;
+                            yInitial = obstacles.get(currentObstacle).y;
 
                             xPrev = (int)event.getX();
                             yPrev = (int)event.getY();
-                            currentObstacle = i;
                             break;
                         }
                     }
                 }
 
-            // TODO: make dragged bitmap show on top
             case MotionEvent.ACTION_MOVE:
             if (dragBitmap == true) {
-                    obstacles[currentObstacle].x += (int)event.getX() - xPrev;
-                    obstacles[currentObstacle].y += (int)event.getY() - yPrev;
+                    obstacles.get(currentObstacle).x += (int)event.getX() - xPrev;
+                    obstacles.get(currentObstacle).y += (int)event.getY() - yPrev;
                     xPrev = (int)event.getX();
                     yPrev = (int)event.getY();
                 }
@@ -198,17 +217,13 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
             case MotionEvent.ACTION_UP:
                 // if bitmap is not in the path, return it back to initial position
-                float slope;
-                // check if bottom of tree stump is within path
-                // TODO: combine path and stroke
-                int checkX = (int) obstacles[currentObstacle].x + (current_bm.getWidth() / 2);
-                int checkY = (int) obstacles[currentObstacle].y + current_bm.getHeight();
-                // TODO: make different check values for stone
+                int checkX = (int) obstacles.get(currentObstacle).x + (current_bm.getWidth() / 2);
+                int checkY = (int) obstacles.get(currentObstacle).y + current_bm.getHeight();
 
                 if(!region.contains(checkX, checkY)) {
-                    slope = (yInitial - checkY) / (xInitial - checkX);
-                    obstacles[currentObstacle].x = xInitial;
-                    obstacles[currentObstacle].y = yInitial;
+                    obstacles.get(currentObstacle).x = xInitial;
+                    obstacles.get(currentObstacle).y = yInitial;
+                    ((PlayGame) context).playSound("fail");
                 }
                 dragBitmap = false;
                 invalidate();
@@ -217,23 +232,15 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         return true;
     }
 
-    // TODO: make motion interesting
-    private void obstacleMotion() {
-        //if (obstacles[0].x != xInitial && obstacles[0].y != yInitial){
-
-        //}
-    }
-
     private boolean clickOnBitmap(int index, MotionEvent event) {
-        if (obstacles[index].type == "tree") {
+        if (obstacles.get(index).type == "tree") {
             current_bm = tree_bm;
         }
-        //else if (obstacle.type == "stone"){
         else {
             current_bm = stone_bm;
         }
-        float xStart = obstacles[index].x;
-        float yStart = obstacles[index].y;
+        float xStart = obstacles.get(index).x;
+        float yStart = obstacles.get(index).y;
         float xEnd = xStart + current_bm.getWidth();
         float yEnd = yStart + current_bm.getHeight();
 
@@ -277,14 +284,14 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         backgroundPath.lineTo(lineColumns[1], 0 - strokeWidth);
         backgroundPath.close();
 
+        fillPaint = new Paint();
+        fillPaint.setStyle(Paint.Style.FILL);
+        fillPaint.setColor(android.graphics.Color.WHITE);
+
         RectF rectF = new RectF();
         backgroundPath.computeBounds(rectF, true);
         region = new Region();
         region.setPath(backgroundPath, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
-
-        fillPaint = new Paint();
-        fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(android.graphics.Color.WHITE);
 
         this.canvas.drawRect(background, basePaint);
         this.canvas.drawPath(backgroundPath, fillPaint);
@@ -311,7 +318,40 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
     }
 
     private void avatarMotion(int speed) {
-        // TODO: check if snowflake hits obstacle (how?)
+
+        long currentTime = SystemClock.elapsedRealtime();
+        // check if 3000ms or more have passed since last life lost
+        if (currentTime == -1 || currentTime - timeLastDied > 3000) {
+
+            if (avatar_transparent == true) {
+                // change avatar back to blue
+                avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
+                avatar_transparent = true;
+            }
+
+            // check if snowflake hits any obstacle
+            for (int i = 0; i < 4; i++) {
+                if (isCollisionDetected(avatar_bm, (int) avatar.x, (int) avatar.y,
+                        tree_bm, (int) obstacles.get(i).x, (int) obstacles.get(i).y)) {
+                    // lost a life
+                    lives -= 1;
+                    timeLastDied = currentTime;
+                    if (lives == 0) {
+                        // GAME OVER
+                        Intent intent = new Intent().setClass(getContext(), GameOverActivity.class);
+                        intent.putExtra("score", score);
+                        (getContext()).startActivity(intent);
+                        break;
+                    }
+                    else {
+                        ((PlayGame) context).playSound("lose");
+                        // temporarily change transparency of avatar
+                        avatar_bm = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar_transparent);
+                        avatar_transparent = true;
+                    }
+                }
+            }
+        }
 
         // if reach top of screen, return to bottom
         if (avatar.y <= speed){
@@ -378,10 +418,24 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
             @Override
             public void run() {
-
+                ((PlayGame) context).playSound("points");
                 ((PlayGame) context).addPoints(num);
-
+                score = ((PlayGame) context).getPoints();
             }
         });
+    }
+
+     // check if two bitmaps are colliding
+    public boolean isCollisionDetected(Bitmap avatarBitmap, int avatarX, int avatarY,
+                                       Bitmap obstacleBitmap, int obstacleX, int obstacleY) {
+        if (obstacleBitmap == null || avatarBitmap == null) {
+            throw new IllegalArgumentException("Error: null bitmap");
+        }
+
+        if (obstacleX <= avatarX && (obstacleX + tree_bm.getWidth()) >= avatarX
+            && obstacleY <= avatarY && (obstacleY + tree_bm.getHeight()) >= avatarY) {
+            return true;
+        }
+        return false;
     }
 }

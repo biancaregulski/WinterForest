@@ -8,18 +8,24 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class PlayGame extends Activity {
+public class PlayGame extends AppCompatActivity {
 
     private PlayGameLayout mPlayGameLayout;
     private FrameLayout mFrameLayout;
@@ -30,9 +36,10 @@ public class PlayGame extends Activity {
 
     public static MusicService mBoundService;
 
+    MediaPlayer increasePointsSound, increaseLevelSound, failSound, loseLifeSound;
+
     public Button resumeButton, restartButton, settingsButton, quitButton;
 
-    // TODO: add multiple lives
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,22 +67,6 @@ public class PlayGame extends Activity {
             }
         });
 
-        Button testButton = new Button(this);
-        RelativeLayout.LayoutParams testButtonParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        testButtonParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
-        testButtonParams.setMargins(0,30,220,0);
-        testButton.setLayoutParams(testButtonParams);
-        testButton.setText("Game Over");
-        testButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(PlayGame.this, GameOverActivity.class);
-                intent.putExtra("score", 0);
-                startActivity(intent);
-            }
-        });
-
         // display score box
         scoreText = new TextView(this);
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -93,9 +84,11 @@ public class PlayGame extends Activity {
         scoreText.setTextColor(Color.BLACK);
 
         gameWidgets.addView(pauseButton);
-        gameWidgets.addView(testButton);
         gameWidgets.addView(scoreText);
         mFrameLayout.addView(mPlayGameLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View playLayout = inflater.inflate(R.layout.activity_play, null, false);
+        mFrameLayout.addView(playLayout);
         mFrameLayout.addView(gameWidgets);
 
         setContentView(mFrameLayout);
@@ -110,8 +103,16 @@ public class PlayGame extends Activity {
     private void pauseLayout() {
         mPlayGameLayout.pause();
 
+        increasePointsSound.release();
+        increasePointsSound = null;
+        increaseLevelSound.release();
+        increaseLevelSound = null;
+        failSound.release();
+        failSound = null;
+        loseLifeSound.release();
+        loseLifeSound = null;
+
         final Dialog dialog = new Dialog(PlayGame.this);
-        // Include dialog.xml file
         dialog.setContentView(R.layout.dialog_pause);
         dialog.setCancelable(false);
         dialog.show();
@@ -169,8 +170,14 @@ public class PlayGame extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!settingsOpened)
+        increasePointsSound = MediaPlayer.create(PlayGame.this, R.raw.increase_points);
+        increaseLevelSound = MediaPlayer.create(PlayGame.this, R.raw.increase_level);
+        failSound = MediaPlayer.create(PlayGame.this, R.raw.fail);
+        loseLifeSound = MediaPlayer.create(PlayGame.this, R.raw.lose_life);
+
+        if (!settingsOpened) {
             mPlayGameLayout.resume();
+        }
     }
 
     @Override
@@ -181,5 +188,24 @@ public class PlayGame extends Activity {
     public void addPoints(int num) {
         score += num;
         scoreText.setText("Score: " + String.format("%05d", score));
+    }
+
+    public int getPoints() {
+        return score;
+    }
+
+    public void playSound(String sound) {
+        if (sound.equals("level")) {
+            increaseLevelSound.start();
+        }
+        else if (sound.equals("points")) {
+            increasePointsSound.start();
+        }
+        else if (sound.equals("fail")) {
+            failSound.start();
+        }
+        else if (sound.equals("lose")) {
+            loseLifeSound.start();
+        }
     }
 }

@@ -6,10 +6,13 @@
     <string name="treeDrawing">Tree drawing</string>
     <string name="mountainsDrawing">Mountains Drawing</string>
     <string name="title_activity_how_to_play">HowToPlayActivity</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_1">1</string>
+    <string name="tab_text_2">2</string>
     <string name="tab_text_3">Tab 3</string>
+    <string name="how_to_play_descr1">A blue snowflake flies through the wind along a snowy path</string>
+    <string name="how_to_play_descr2">Drag the trees out of the way to allow the snowflake through</string>
+    <string name="how_to_play_descr3">+10 points every time a snowflake makes it through the path</string>
+    <string name="how_to_play_descr4">Get hit by trees twice and it\'s Game Over!</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

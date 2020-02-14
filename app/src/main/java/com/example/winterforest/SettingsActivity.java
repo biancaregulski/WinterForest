@@ -142,12 +142,12 @@ public class SettingsActivity extends AppCompatActivity {
     public void updateViews() {
         // TODO: make music adapt to switch setting
         musicSwitch.setChecked(musicOnOff);
-        if (musicOnOff) {
+        /*if (musicOnOff) {
             mBoundService.resumeMusic();
         }
         else {
             mBoundService.pauseMusic();
-        }
+        }*/
         soundsSwitch.setChecked(soundsOnOff);
     }
 }
