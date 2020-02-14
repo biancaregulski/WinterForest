@@ -19,7 +19,7 @@ import com.example.winterforest.ui.main.SectionsPagerAdapter;
 
 public class HowToPlayActivity extends AppCompatActivity {
 
-    public static MusicService mBoundService;
+    // public static MusicService mBoundService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

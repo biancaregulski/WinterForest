@@ -1,31 +1,21 @@
 package com.example.winterforest;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.media.MediaPlayer;
 import android.os.SystemClock;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -77,7 +67,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         timeLastDied = 0;
 
         // make bitmap and set its coordinates
-        tree_bm = BitmapFactory.decodeResource(getResources(), R.drawable.tree);
+        tree_bm = BitmapFactory.decodeResource(getResources(), R.drawable.tree_small);
 
         // get custom dimensions of screen
         Point size = new Point();
@@ -102,7 +92,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         avatars.get(0).x = avatarColumns[0];
         avatars.get(0).y = screenHeight;
         avatars.get(0).transparent = false;
-        avatars.get(0).speed = 6;
+        avatars.get(0).speed = 3;
         avatars.get(0).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
 
         obstacles.add(new Obstacle());
@@ -125,7 +115,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         obstacles.get(3).y = avatarRows[4] - (tree_bm.getHeight() / 2);
         obstacles.get(3).type = "tree";
 
-        strokeWidth = screenWidth / 40;         // get width of path stroke
+        strokeWidth = screenWidth / 50;         // get width of path stroke
     }
 
 
@@ -315,7 +305,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
             avatars.add(new Avatar());
             avatars.get(1).x = avatarColumns[0];
             avatars.get(1).y = screenHeight;
-            avatars.get(1).speed = 6;
+            avatars.get(1).speed = 3;
             avatars.get(1).transparent = false;
             avatars.get(1).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
         }

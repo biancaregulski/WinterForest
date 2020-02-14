@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
@@ -16,20 +17,23 @@ import android.widget.FrameLayout;
 
 import java.util.Set;
 
+import static com.example.winterforest.SettingsActivity.SWITCH_SOUNDS;
+
 public class MainActivity extends Activity {
     private boolean mIsBound = false;
 
-    public static MusicService mBoundService;
+    // TODO: implement music service
+    // public static MusicService mBoundService;
     private Intent playIntent;
 
     private SnowLayout mSnowLayout;
-    private PlayGameLayout mPlayGameLayout;
     private FrameLayout mFrameLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        doBindService();
+        // doBindService();
+
 
         Display display = getWindowManager().getDefaultDisplay();
         mFrameLayout = new FrameLayout(this);
@@ -61,7 +65,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 overridePendingTransition( R.anim.slide_up, R.anim.slide_down );
                 break;
-            // TODO: add high scores
         }
     }
 
@@ -69,9 +72,9 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mSnowLayout.pause();
-        if (mBoundService != null) {
+        /*if (mBoundService != null) {
             mBoundService.pauseMusic();
-        }
+        }*/
 
     }
 
@@ -79,18 +82,18 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         mSnowLayout.resume();
-        if (mBoundService != null) {
+        /*if (mBoundService != null) {
             mBoundService.resumeMusic();
-        }
+        }*/
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        doUnbindService();
+        //doUnbindService();
     }
 
-    protected ServiceConnection mServiceConnection = new ServiceConnection(){
+    /*protected ServiceConnection mServiceConnection = new ServiceConnection(){
 
         public void onServiceConnected(ComponentName name, IBinder
                 binder) {
@@ -116,5 +119,5 @@ public class MainActivity extends Activity {
             unbindService(mServiceConnection);
             mIsBound = false;
         }
-    }
+    }*/
 }

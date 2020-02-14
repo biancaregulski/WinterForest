@@ -1,19 +1,14 @@
 package com.example.winterforest;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -34,11 +28,19 @@ public class PlayGame extends AppCompatActivity {
     int score;
     static boolean settingsOpened = false;
 
-    public static MusicService mBoundService;
+    boolean soundsOnOff;
 
-    MediaPlayer increasePointsSound, increaseLevelSound, failSound, loseLifeSound;
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String SWITCH_SOUNDS = "soundsSwitch";
+
+    // public static MusicService mBoundService;
+
+    // TODO: replace with SoundPool
+    MediaPlayer increasePointsSound, failSound, loseLifeSound;
 
     public Button resumeButton, restartButton, settingsButton, quitButton;
+
+    SharedPreferences mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,8 @@ public class PlayGame extends AppCompatActivity {
 
         score = 0;
         settingsOpened = false;
+
+        mPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFS, MODE_MULTI_PROCESS);
 
         // display pause button
         RelativeLayout gameWidgets = new RelativeLayout(this);
@@ -77,7 +81,7 @@ public class PlayGame extends AppCompatActivity {
         scoreText.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
         scoreText.setLayoutParams(textParams);
         scoreText.setPadding(30, 10, 30, 10);
-        scoreText.setBackgroundResource(R.drawable.border_light_blue_background);
+        scoreText.setBackgroundResource(R.drawable.border_light_blue_background2);
         scoreText.setText("Score: " + String.format("%05d", score));
         scoreText.setTypeface(null, Typeface.BOLD);
         scoreText.setTextSize(20);
@@ -102,22 +106,22 @@ public class PlayGame extends AppCompatActivity {
 
     private void pauseLayout() {
         mPlayGameLayout.pause();
-        if (increasePointsSound != null) {
-            increasePointsSound.release();
-            increasePointsSound = null;
+        // TODO: make sounds layer
+        if (soundsOnOff == true) {
+            if (increasePointsSound != null) {
+                increasePointsSound.release();
+                increasePointsSound = null;
+            }
+            if (failSound != null) {
+                failSound.release();
+                failSound = null;
+            }
+            if (loseLifeSound != null) {
+                loseLifeSound.release();
+                loseLifeSound = null;
+            }
         }
-        if (increaseLevelSound != null) {
-            increaseLevelSound.release();
-            increaseLevelSound = null;
-        }
-        if (failSound != null) {
-            failSound.release();
-            failSound = null;
-        }
-        if (loseLifeSound != null) {
-            loseLifeSound.release();
-            loseLifeSound = null;
-        }
+
 
         final Dialog dialog = new Dialog(PlayGame.this);
         dialog.setContentView(R.layout.dialog_pause);
@@ -177,10 +181,12 @@ public class PlayGame extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        increasePointsSound = MediaPlayer.create(PlayGame.this, R.raw.increase_points);
-        increaseLevelSound = MediaPlayer.create(PlayGame.this, R.raw.increase_level);
-        failSound = MediaPlayer.create(PlayGame.this, R.raw.fail);
-        loseLifeSound = MediaPlayer.create(PlayGame.this, R.raw.lose_life);
+        soundsOnOff = mPrefs.getBoolean(SWITCH_SOUNDS, true);
+        if (soundsOnOff == true) {
+            increasePointsSound = MediaPlayer.create(PlayGame.this, R.raw.increase_points);
+            failSound = MediaPlayer.create(PlayGame.this, R.raw.fail);
+            loseLifeSound = MediaPlayer.create(PlayGame.this, R.raw.lose_life);
+        }
 
         if (!settingsOpened) {
             mPlayGameLayout.resume();
@@ -202,17 +208,23 @@ public class PlayGame extends AppCompatActivity {
     }
 
     public void playSound(String sound) {
-        if (sound.equals("level")) {
-            increaseLevelSound.start();
-        }
-        else if (sound.equals("points")) {
-            increasePointsSound.start();
-        }
-        else if (sound.equals("fail")) {
-            failSound.start();
-        }
-        else if (sound.equals("lose")) {
-            loseLifeSound.start();
+        if (soundsOnOff == true) {
+
+            if (sound.equals("points")) {
+                if (increasePointsSound != null) {
+                    increasePointsSound.start();
+                }
+            }
+            else if (sound.equals("fail")) {
+                if (increasePointsSound != null) {
+                    failSound.start();
+                }
+            }
+            else if (sound.equals("lose")) {
+                if (increasePointsSound != null) {
+                    loseLifeSound.start();
+                }
+            }
         }
     }
 }

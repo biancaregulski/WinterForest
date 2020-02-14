@@ -1,4 +1,4 @@
-package com.example.winterforest;
+/*package com.example.winterforest;
 
 import android.app.Service;
 import android.content.Intent;
@@ -104,4 +104,4 @@ public class MusicService extends Service  implements MediaPlayer.OnErrorListene
         }
         return false;
     }
-}
+}*/

@@ -11,7 +11,7 @@ import android.os.Bundle;
 
 public class LevelScreen extends AppCompatActivity {
 
-    public static MusicService mBoundService;
+    // public static MusicService mBoundService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -62,7 +62,6 @@ public class SnowLayout extends SurfaceView implements Runnable {
         createSnowflakes();
     }
 
-    // TODO: make snowflakes start at top
     private void createSnowflakes() {
         int previousRandom = 0;
 

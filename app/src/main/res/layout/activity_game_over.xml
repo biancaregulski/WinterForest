@@ -38,7 +38,7 @@
         android:id="@+id/button_restart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/border_purple_background"
+        android:background="@drawable/border_purple_background2"
         android:onClick="onClick"
         android:text="Restart"
         android:textSize="20sp"
