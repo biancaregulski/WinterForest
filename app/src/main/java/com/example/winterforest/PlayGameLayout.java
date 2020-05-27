@@ -92,7 +92,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
         avatars.get(0).x = avatarColumns[0];
         avatars.get(0).y = screenHeight;
         avatars.get(0).transparent = false;
-        avatars.get(0).speed = 3;
+        avatars.get(0).speed = 6;
         avatars.get(0).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
 
         obstacles.add(new Obstacle());
@@ -305,7 +305,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
             avatars.add(new Avatar());
             avatars.get(1).x = avatarColumns[0];
             avatars.get(1).y = screenHeight;
-            avatars.get(1).speed = 3;
+            avatars.get(1).speed = 6;
             avatars.get(1).transparent = false;
             avatars.get(1).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar);
         }
