@@ -208,7 +208,7 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
                 if(!region.contains(checkX, checkY)) {
                     obstacles.get(currentObstacle).x = xInitial;
                     obstacles.get(currentObstacle).y = yInitial;
-                    ((PlayGame) context).playSound("fail");
+                    ((PlayGameActivity) context).playSound("fail");
                 }
                 dragBitmap = false;
                 invalidate();
@@ -328,13 +328,11 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
                         timeLastDied = currentTime;
                         if (lives == 0) {
                             // GAME OVER
-                            Intent intent = new Intent().setClass(getContext(), GameOverActivity.class);
-                            intent.putExtra("score", score);
-                            (getContext()).startActivity(intent);
+                            ((PlayGameActivity) context).gameOver();
                             break;
                         }
                         else {
-                            ((PlayGame) context).playSound("lose");
+                            ((PlayGameActivity) context).playSound("lose");
                             // temporarily change transparency of avatar
                             avatars.get(i).bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snowflake_avatar_transparent);
                             avatars.get(i).transparent = true;
@@ -407,13 +405,13 @@ public class PlayGameLayout extends SurfaceView implements Runnable {
 
     }
     private void updatePoints(final int num) {
-        ((PlayGame)context).runOnUiThread(new Runnable() {
+        ((PlayGameActivity)context).runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                ((PlayGame) context).playSound("points");
-                ((PlayGame) context).addPoints(num);
-                score = ((PlayGame) context).getPoints();
+                ((PlayGameActivity) context).playSound("points");
+                ((PlayGameActivity) context).addPoints(num);
+                score = ((PlayGameActivity) context).getPoints();
             }
         });
     }

@@ -1,4 +1,4 @@
-/*package com.example.winterforest;
+package com.example.winterforest;
 
 import android.app.Service;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.widget.Toast;
 
-public class MusicService extends Service  implements MediaPlayer.OnErrorListener {
+public class MusicService extends Service implements MediaPlayer.OnErrorListener {
 
     private final IBinder mBinder = new ServiceBinder();
     MediaPlayer mPlayer;
@@ -104,4 +104,4 @@ public class MusicService extends Service  implements MediaPlayer.OnErrorListene
         }
         return false;
     }
-}*/
+}

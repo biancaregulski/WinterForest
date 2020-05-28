@@ -19,12 +19,7 @@ import java.util.Set;
 
 import static com.example.winterforest.SettingsActivity.SWITCH_SOUNDS;
 
-public class MainActivity extends Activity {
-    private boolean mIsBound = false;
-
-    // TODO: implement music service
-    // public static MusicService mBoundService;
-    private Intent playIntent;
+public class MainActivity extends BaseActivity {
 
     private SnowLayout mSnowLayout;
     private FrameLayout mFrameLayout;
@@ -32,17 +27,15 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // doBindService();
-
 
         Display display = getWindowManager().getDefaultDisplay();
         mFrameLayout = new FrameLayout(this);
         mSnowLayout = new SnowLayout(this, display);
-        mFrameLayout.addView(mSnowLayout);
+        mFrameLayout.addView(mSnowLayout);                      // display snow animations
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.activity_main, null, false);
-        mFrameLayout.addView(v);
+        mFrameLayout.addView(v);                // add rest of layout (text, image views, buttons)
 
         setContentView(mFrameLayout);
     }
@@ -51,18 +44,21 @@ public class MainActivity extends Activity {
     public void onClick(View view) {
         Intent intent;
         switch (view.getId()) {
-            case R.id.button_play:
+            case R.id.button_play:              // start game
                 intent = new Intent(this, LevelScreen.class);
                 startActivity(intent);
+                changedActivity = true;
                 break;
-            case R.id.button_how:
+            case R.id.button_how:               // go to how to play screen
                 intent = new Intent(this, HowToPlayActivity.class);
                 startActivity(intent);
+                changedActivity = true;
                 break;
-            case R.id.button_settings:
+            case R.id.button_settings:          // go to settings screen
                 intent = new Intent(this, SettingsActivity.class);
                 intent.putExtra("gray_background", true);
                 startActivity(intent);
+                changedActivity = true;
                 overridePendingTransition( R.anim.slide_up, R.anim.slide_down );
                 break;
         }
@@ -72,52 +68,18 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mSnowLayout.pause();
-        /*if (mBoundService != null) {
-            mBoundService.pauseMusic();
-        }*/
-
     }
+
+
 
     @Override
     protected void onResume() {
         super.onResume();
         mSnowLayout.resume();
-        /*if (mBoundService != null) {
-            mBoundService.resumeMusic();
-        }*/
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //doUnbindService();
     }
-
-    /*protected ServiceConnection mServiceConnection = new ServiceConnection(){
-
-        public void onServiceConnected(ComponentName name, IBinder
-                binder) {
-            mBoundService = ((MusicService.ServiceBinder)binder).getService();
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            mBoundService = null;
-        }
-    };
-
-    void doBindService(){
-        playIntent = new Intent(this, MusicService.class);
-        startService(playIntent);
-        bindService(playIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
-
-    void doUnbindService()
-    {
-        if(mIsBound)
-        {
-            unbindService(mServiceConnection);
-            mIsBound = false;
-        }
-    }*/
 }

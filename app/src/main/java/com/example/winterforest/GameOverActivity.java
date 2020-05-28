@@ -1,25 +1,20 @@
 package com.example.winterforest;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-public class GameOverActivity extends AppCompatActivity {
+public class GameOverActivity extends BaseActivity {
 
     int score;
     TextView scoreText;
     MediaPlayer gameOverSound;
-    // public static MusicService mBoundService;
 
-    boolean soundsOnOff;
+    boolean soundsOn;
 
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String SWITCH_SOUNDS = "soundsSwitch";
@@ -32,9 +27,9 @@ public class GameOverActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game_over);
 
         mPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFS, MODE_MULTI_PROCESS);
-        soundsOnOff = mPrefs.getBoolean(SWITCH_SOUNDS, true);
+        soundsOn = mPrefs.getBoolean(SWITCH_SOUNDS, true);
 
-        if (soundsOnOff == true) {
+        if (soundsOn == true) {
             gameOverSound = MediaPlayer.create(GameOverActivity.this, R.raw.game_over);
         }
         gameOverSound.start();
@@ -48,13 +43,20 @@ public class GameOverActivity extends AppCompatActivity {
         Intent intent;
         switch (view.getId()) {
             case R.id.button_restart:
-                intent = new Intent(this, PlayGame.class);
+                changedActivity = true;
+                intent = new Intent(this, PlayGameActivity.class);
                 startActivity(intent);
                 break;
             case R.id.button_quit:
+                changedActivity = true;
                 intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 break;
         }
+    }
+    @Override
+    public void onBackPressed() {
+        changedActivity = true;
+        super.onBackPressed();
     }
 }

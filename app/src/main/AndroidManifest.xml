@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round_tree"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GameOverActivity"></activity>
+        <activity android:name=".BaseActivity"></activity>
+        <activity android:name=".GameOverActivity" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
@@ -25,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PlayGame" />
+        <activity android:name=".PlayGameActivity" />
 
         <service
             android:name=".MusicService"

@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/border_light_blue_background">
 
-        <!-- <Switch
+        <Switch
             android:id="@+id/switch_music"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,19 +20,20 @@
             android:checked="true"
             android:text="Music   "
             android:textColor="@color/black"
-            android:textSize="20sp" /> -->
+            android:textSize="20sp" />
 
         <Switch
             android:id="@+id/switch_sounds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/switch_music"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:checked="true"
             android:text="Sounds   "
             android:textColor="@color/black"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/button_submit"

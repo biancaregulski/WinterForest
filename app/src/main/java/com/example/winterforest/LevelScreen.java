@@ -1,17 +1,10 @@
 package com.example.winterforest;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class LevelScreen extends AppCompatActivity {
-
-    // public static MusicService mBoundService;
+public class LevelScreen extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,9 +14,15 @@ public class LevelScreen extends AppCompatActivity {
         int secondsDelayed = 1;
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                startActivity(new Intent(LevelScreen.this, PlayGame.class));
+                startActivity(new Intent(LevelScreen.this, PlayGameActivity.class));
+                changedActivity = true;
                 finish();
             }
         }, secondsDelayed * 1000);
+    }
+
+    @Override
+    public void onBackPressed() {
+        // do nothing, must wait for game
     }
 }
