@@ -11,9 +11,9 @@ import android.os.Bundle;
 
 public class BaseActivity extends AppCompatActivity {
 
-    protected boolean changedActivity = false;      // to prevent pausing/resuming music when changing activities
+    protected boolean changedActivity;
     protected boolean musicSettingOn;
-    private boolean musicPlaying = false;
+    private boolean musicPlaying;
 
     SharedPreferences mPrefs;
 
@@ -23,6 +23,9 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        changedActivity = false;// to prevent pausing/resuming music when changing activities
+        musicPlaying = false;
 
         // check if music setting is on
         mPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFS, MODE_MULTI_PROCESS);
@@ -45,7 +48,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (musicSettingOn && !changedActivity) {
+        if (!musicPlaying && musicSettingOn && !changedActivity) {
             // start music
             Intent playIntent = new Intent(this, MusicService.class);
             startService(playIntent);
